@@ -24,102 +24,6 @@ class Translation
     word + ' (' + gender + ')'
   end
 end
-
-def processLine(line, lang, enWord)
-  #puts line
-  
-  # Section headings
-  if line =~ /.*<td colspan='3' title='Principal Translations'.*/
-    priority = 0
-    evennessTmp = nil
-    #puts "=== PRIORITY 0 (principal) ==="
-  elsif line =~ /.*<td colspan='3' title='Compound Forms'.*/
-    priority = 0
-    evennessTmp = nil
-    #puts "=== PRIORITY 0 (compound) ==="
-  elsif line =~ /.*<td colspan='3' title='Additional Translations'.*/
-    priority = 1
-    evennessTmp = nil
-    #puts "=== PRIORITY 1 ==="
-  end
-  
-  # Beginning of translation block
-  groups = line.match(/.*<tr class='(?<evenness>even|odd)' id='en#{lang}:\d+'><td class='FrWrd'><strong>(?<enWordsFound>.*)<\/strong> <em class='POS2'>(?<enPos>.*)<\/em><\/td><td>(?: <i class='Fr2'>(?<category>.*)<\/i>)? \((?<disambiguation>.*)\)(?: <i class='To2' >(?<translationNote>.*)<\/i>)?<\/td><td class='ToWrd' >(?<translations>.*) <em class='POS2'>(?<transPos>.*)<\/em><\/td><\/tr>/)
-  contGroups = nil
-  if evennessTmp != nil
-    contGroups = line.match(/<tr class='#{evennessTmp}'><td>&nbsp;<\/td><td class='To2'>(?<translationNote>.*)<\/td><td class='ToWrd' >(?<translations>.*) <em class='POS2'>(?<transPos>.*)<\/em><\/td><\/tr>/)
-  end
-  
-  if groups != nil
-    if groups[:enPos] == "n"
-      #puts "Trans block: " + line
-      
-      hypothesis = Hypothesis.new
-      
-      enWordsFound = groups[:enWordsFound]
-      
-      enWordsFound.split(", ").each do |enWordFound|
-        if enWordFound == enWord
-          posTmp = groups[:transPos]
-          genderTmp = posToGender(posTmp)
-          
-          groups[:translations].split(", ").each do |translation|
-            if hypothesis.translations.nil?
-              hypothesis.translations = []
-            end
-            trans = Translation.new
-            trans.gender = genderTmp
-            trans.word = translation
-            trans.pronunciation = pronunciation(translation, lang)
-            hypothesis.translations << trans
-          end
-          
-          evennessTmp = groups[:evenness]
-          
-          hypothesis.priority = priority
-          
-          hypothesis.category = groups[:category]
-          hypothesis.translationNote = groups[:translationNote]
-          hypothesis.disambiguation = groups[:disambiguation]
-          
-          #puts "trans hypo: " + hypothesis.inspect
-          
-          return hypothesis
-        end
-      end
-    else
-      evennessTmp = nil
-    end
-  elsif !evennessTmp.nil? and !contGroups.nil?
-    hypothesisOld = hypothesis
-    hypothesis = Hypothesis.new
-    
-    hypothesis.priority = hypothesisOld.priority
-    
-    pos = contGroups[:transPos]
-    genderTmp = posToGender(pos)
-    
-    if hypothesis.translations.nil?
-      hypothesis.translations = []
-    end
-    contGroups[:translations].split(", ").each do |translation|
-      if translation == "-"
-        next
-      end
-      trans = Translation.new
-      trans.gender = genderTmp
-      trans.word = translation
-      hypothesis.translations << trans
-    end # translation loop
-    
-    hypothesis.translationNote = contGroups[:translationNote]
-    
-    #puts "trans hypo: " + hypothesis.inspect
-    
-    return hypothesis if !hypothesis.translations.empty?
-  end # continued translation block if
-  return nil
-end
        
 def posToGender(pos)
   gender = nil
@@ -197,16 +101,96 @@ enWords.each_line do |enWord|
     priority = nil
     content.each_line do |line|
       
-      
-      
-      
-      hypothesis = processLine(line, lang, enWord)
-      #puts hypothesis.translations[0] if !hypothesis.nil?
-      
-      if !hypothesis.nil?
-        #puts "moo=" + hypothesis.inspect
-        hypotheses << hypothesis
+      # Section headings
+      if line =~ /.*<td colspan='3' title='Principal Translations'.*/
+        priority = 0
+        evennessTmp = nil
+        #puts "=== PRIORITY 0 (principal) ==="
+      elsif line =~ /.*<td colspan='3' title='Compound Forms'.*/
+        priority = 0
+        evennessTmp = nil
+        #puts "=== PRIORITY 0 (compound) ==="
+      elsif line =~ /.*<td colspan='3' title='Additional Translations'.*/
+        priority = 1
+        evennessTmp = nil
+        #puts "=== PRIORITY 1 ==="
       end
+      
+      # Beginning of translation block
+      groups = line.match(/.*<tr class='(?<evenness>even|odd)' id='en#{lang}:\d+'><td class='FrWrd'><strong>(?<enWordsFound>.*)<\/strong> <em class='POS2'>(?<enPos>.*)<\/em><\/td><td>(?: <i class='Fr2'>(?<category>.*)<\/i>)? \((?<disambiguation>.*)\)(?: <i class='To2' >(?<translationNote>.*)<\/i>)?<\/td><td class='ToWrd' >(?<translations>.*) <em class='POS2'>(?<transPos>.*)<\/em><\/td><\/tr>/)
+      contGroups = nil
+      if evennessTmp != nil
+        contGroups = line.match(/<tr class='#{evennessTmp}'><td>&nbsp;<\/td><td class='To2'>(?<translationNote>.*)<\/td><td class='ToWrd' >(?<translations>.*) <em class='POS2'>(?<transPos>.*)<\/em><\/td><\/tr>/)
+      end
+      
+      if groups != nil
+        if groups[:enPos] == "n"
+          #puts "Trans block: " + line
+          
+          hypothesis = Hypothesis.new
+          
+          enWordsFound = groups[:enWordsFound]
+          
+          enWordsFound.split(", ").each do |enWordFound|
+            if enWordFound == enWord
+              posTmp = groups[:transPos]
+              genderTmp = posToGender(posTmp)
+              
+              groups[:translations].split(", ").each do |translation|
+                if hypothesis.translations.nil?
+                  hypothesis.translations = []
+                end
+                trans = Translation.new
+                trans.gender = genderTmp
+                trans.word = translation
+                trans.pronunciation = pronunciation(translation, lang)
+                hypothesis.translations << trans
+              end
+              
+              evennessTmp = groups[:evenness]
+              
+              hypothesis.priority = priority
+              
+              hypothesis.category = groups[:category]
+              hypothesis.translationNote = groups[:translationNote]
+              hypothesis.disambiguation = groups[:disambiguation]
+              
+              #puts "trans hypo: " + hypothesis.inspect
+              
+              hypotheses << hypothesis
+            end
+          end
+        else
+          evennessTmp = nil
+        end
+      elsif !evennessTmp.nil? and !contGroups.nil?
+        hypothesisOld = hypothesis
+        hypothesis = Hypothesis.new
+        
+        hypothesis.priority = hypothesisOld.priority
+        
+        pos = contGroups[:transPos]
+        genderTmp = posToGender(pos)
+        
+        if hypothesis.translations.nil?
+          hypothesis.translations = []
+        end
+        contGroups[:translations].split(", ").each do |translation|
+          if translation == "-"
+            next
+          end
+          trans = Translation.new
+          trans.gender = genderTmp
+          trans.word = translation
+          hypothesis.translations << trans
+        end # translation loop
+        
+        hypothesis.translationNote = contGroups[:translationNote]
+        
+        #puts "trans hypo: " + hypothesis.inspect
+        
+        hypotheses << hypothesis if !hypothesis.translations.empty?
+      end # continued translation block if
       
       #hypotheses << hypothesis if !hypothesis.nil?
     end # translation line loop
