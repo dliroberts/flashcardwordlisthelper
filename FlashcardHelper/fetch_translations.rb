@@ -1,47 +1,13 @@
 require 'open-uri'
 require 'rexml/document'
 require 'cgi'
-require 'rubygems'
-require 'roo'
+require 'axlsx'
 include REXML
 
-class Hypothesis
-  attr_accessor :priority, :translations, :category, :translationNote, :disambiguation
-end
+outFilename = "flashcard_notes.xlsx"
 
-class Translation
-  attr_accessor :word, :gender, :pronunciation
-  
-  def eql?(other)
-    (word == other.word) and (gender == other.gender)
-  end
-  
-  def hash
-    return 17 + word.hash * 37 + gender.hash * 97
-  end
-  
-  def to_s
-    word + ' (' + gender + ')'
-  end
-end
-       
-def posToGender(pos)
-  gender = nil
-  if ['nm','sm'].include?(pos)
-    gender = 'm'
-  elsif ['nf','sf'].include?(pos)
-    gender = 'f'
-  elsif pos == 'nmpl'
-    gender = 'm pl'
-  elsif pos == 'nfpl'
-    gender = 'f pl'
-  elsif pos == 'nm ou nf'
-    gender = 'm/f'
-  else
-    gender = "unknown"
-    #raise "Unsupported POS: " + pos
-  end
-  return gender
+class Hypothesis
+  attr_accessor :priority, :translations, :category, :translationNote, :disambiguation, :language
 end
 
 def pronunciation(word, language)
@@ -68,23 +34,74 @@ def pronunciation(word, language)
   return pronContent
 end
 
+class Translation
+  attr_accessor :word, :gender, :pronunciation, :hypotheses
+  
+  def eql?(other)
+    (word == other.word) and (gender == other.gender)
+  end
+  
+  def hash
+    return 17 + word.hash * 37 + gender.hash * 97
+  end
+  
+  def to_s
+    out = word + ' (' + gender + ')'
+    
+    #puts hypotheses.first.language
+    
+    #pron = pronunciation(word, hypotheses.first.language)
+    #out << " /" + pron + "/" if !pron.nil?
+  end
+end
+       
+def posToGender(pos)
+  gender = nil
+  if ['nm','sm'].include?(pos)
+    gender = 'm'
+  elsif ['nf','sf'].include?(pos)
+    gender = 'f'
+  elsif pos == 'nmpl'
+    gender = 'm pl'
+  elsif pos == 'nfpl'
+    gender = 'f pl'
+  elsif pos == 'nm ou nf'
+    gender = 'm/f'
+  else
+    gender = "unknown"
+    #raise "Unsupported POS: " + pos
+  end
+  return gender
+end
+
+writeInterval = 5
 transSite = "http://www.wordreference.com"
 languages = {"fr" => "/enfr/","it" => "/enit/","es" => "/es/translation.asp?tranword=","pt" => "/pten/"}
 
-header = "enword\t"
-languages.each_key do |lang|
-  header << lang + "_trans\t"
-  header << lang + "_pron\t"
-end
-puts header
+p = Axlsx::Package.new
+book = p.workbook
+sheet = book.add_worksheet(:name => "Notes")
 
+row = []
+
+row << "English Word"
+languages.each_key do |lang|
+  row << lang + " word"
+  row << lang + " pronunciation"
+end
+sheet.add_row(row)
+
+p.serialize outFilename
+
+wordIdx = 1
 enWords=File.open(ARGV[0]).read
 enWords.gsub!(/\r\n?/, "\n")
 enWords.each_line do |enWord|
   
+  row = []
+  
   enWord = enWord.strip
-  print enWord
-  print "\t"
+  row << enWord
   
   languages.each do |lang, path|
     hypotheses = []
@@ -93,10 +110,6 @@ enWords.each_line do |enWord|
     transUrl = transSite + path + CGI.escape(enWord)
     content = open(transUrl) {|f| f.read}
     content.gsub!(/\r\n?/, "\n")
-    
-    #puts transUrl
-    
-    #print content
     
     content =~ /<!-- center column -->(.*)<!-- right column -->/m
     content = $1
@@ -147,6 +160,10 @@ enWords.each_line do |enWord|
                 trans = Translation.new
                 trans.gender = genderTmp
                 trans.word = translation
+                
+                trans.hypotheses = [] if trans.hypotheses.nil?
+                trans.hypotheses << hypothesis
+                
                 trans.pronunciation = pronunciation(translation, lang)
                 hypothesis.translations << trans if !translation.include?("title='translation unavailable'")
               end
@@ -154,12 +171,10 @@ enWords.each_line do |enWord|
               evennessTmp = groups[:evenness]
               
               hypothesis.priority = priority
-              
+              hypothesis.language = lang
               hypothesis.category = groups[:category]
               hypothesis.translationNote = groups[:translationNote]
               hypothesis.disambiguation = groups[:disambiguation]
-              
-              #puts "trans hypo: " + hypothesis.inspect
               
               hypotheses << hypothesis
             end
@@ -217,26 +232,38 @@ enWords.each_line do |enWord|
       
       #puts translations.inspect
       
+      cellContent = ""
       breakPending = false
       if translations.length == 1
-        print translations.first
+        cellContent << translations.first.to_s
         breakPending = true
       elsif translations.length > 1
         translations.map.with_index do |candidate, i|
-          print "|" if i > 0
-          print candidate.inspect
+          cellContent << "\r\n---\r\n" if i > 0
+          cellContent << candidate.to_s
         end
         breakPending = true
       end # hypo count ifelse
+      row << cellContent
       
-      print "\t"
+      cellContent = ""
       translations.map.with_index do |candidate, i|
-        print "|" if i > 0
-        print pronunciation(candidate.word, lang)
+        cellContent << "|" if i > 0
+        pron = pronunciation(candidate.word, lang)
+        cellContent << pron if !pron.nil?
       end
-      print "\t"
+      row << cellContent
+      
       break if breakPending
     end # hypo priority loop
-  end 
-  puts
+  end
+  
+  sheet.add_row(row)
+  wordIdx = (wordIdx + 1) % writeInterval
+  p.serialize outFilename
+  #if wordIdx == 0
+  
+  puts "Row complete: " + enWord
 end
+
+p.serialize outFilename
