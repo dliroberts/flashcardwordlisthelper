@@ -53,9 +53,13 @@ def pronunciation(word, language)
   
   #puts wordEscaped
   #puts pronPageContent
+  #puts pronUrl
   
-  pronPageContent =~ /.*<h2>\s*#{wordEscaped}\s*<span class=.phonetics.>\[([^\]]*)\]<\/span> <span class=.wordclass.><acronym title=.noun.>NOUN<\/acronym><\/span>.*/m
+  pronPageContent =~ /.*<h2>\s*#{wordEscaped}\s*(?:<span class=.flexion.>.{,100}<\/span>\s*)?<span class=.phonetics.>\[([^\]]*)\]<\/span> <span class=.wordclass.><acronym title=.noun.>NOUN<\/acronym><\/span>.*/m
   pronContent = $1
+  
+  #puts pronContent
+  
   if !pronContent.nil?
     pronContent = pronContent.gsub(/<span class="separator">.<\/span>/, "")
     pronContent = pronContent.gsub(/ˈ/, "'")
@@ -144,7 +148,7 @@ enWords.each_line do |enWord|
                 trans.gender = genderTmp
                 trans.word = translation
                 trans.pronunciation = pronunciation(translation, lang)
-                hypothesis.translations << trans
+                hypothesis.translations << trans if !translation.include?("title='translation unavailable'")
               end
               
               evennessTmp = groups[:evenness]
@@ -195,8 +199,6 @@ enWords.each_line do |enWord|
       #hypotheses << hypothesis if !hypothesis.nil?
     end # translation line loop
     
-    #puts hypotheses
-    
     # Print translations - with disambiguation if necessary
     
     [0,1].each do |priority|
@@ -229,14 +231,12 @@ enWords.each_line do |enWord|
       
       print "\t"
       translations.map.with_index do |candidate, i|
-        print "oink"
         print "|" if i > 0
         print pronunciation(candidate.word, lang)
       end
       print "\t"
       break if breakPending
     end # hypo priority loop
-    #exit # TODO remove - test only
   end 
   puts
 end

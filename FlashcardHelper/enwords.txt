@@ -1,10 +1,10 @@
+knife
 fork
 frying pan
 pot
 glasses
 jug
 kettle
-knife
 lid
 napkin
 plate
