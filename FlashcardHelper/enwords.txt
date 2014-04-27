@@ -1,0 +1,763 @@
+fork
+frying pan
+pot
+glasses
+jug
+kettle
+knife
+lid
+napkin
+plate
+saucer
+saucepan
+spoon
+tablecloth
+teapot
+bowl
+apron
+boot
+brush
+button
+cloth
+clothes
+collar
+cotton
+underpants
+dress
+fashion
+glove
+handbag
+handkerchief
+hat
+jacket
+needle
+pocket
+rain-coat
+razor blade
+shirt
+shoe
+shoe lace
+silk
+skirt
+sleeve
+soap
+sock
+glasses
+sponge
+walking stick
+suit (clothes)
+tie
+tooth brush
+trousers
+umbrella
+waistcoat
+watch
+wool
+brass
+brick
+chalk
+clay
+concrete
+cork
+lime (stone)
+rubber
+tar
+tin (sheet)
+dishwasher
+washing machine
+washing up liquid
+detergent
+rubber gloves
+sponge
+cleaning cloth
+clothes line
+airing cupboard
+dryer (machine)
+boiler (machine)
+grill (kitchen)
+dishwasher tab
+laundry liquid
+plunger (toilet)
+stool (furniture)
+dessert
+meal
+dinner
+soup
+stew
+vegetable
+barn
+barracks
+bridge
+building
+castle
+cathedral
+cemetery
+church
+consulate
+corner (of street)
+courtyard
+harbour
+embassy
+factory
+farm
+fountain
+hospital
+hut
+inn
+lane (town)
+market
+museum
+palace
+path (country)
+pier
+police station
+prison
+motorway
+square (in town)
+stable (cattle)
+theatre
+town hall
+pneumonia
+diabetes
+bronchitis
+cancer
+AIDS
+HIV
+wart
+arthritis
+herpes
+cholera
+hepatitis
+'flu
+malaria
+measles
+tuberculosis
+typhoid
+yellow fever
+hay fever
+irritable bowel syndrome
+bacteria
+arch
+gutter
+plaster
+mortar
+railing
+bannister
+Austria
+Belgium
+a Belgian
+Brazil
+a Brazilian
+a Chinese
+a Dane
+Denmark
+empire
+England
+an Englishman
+a German
+Germany
+Great Britain
+Greece
+a Greek
+Netherlands
+a Dutchman
+a Hungarian
+Japan
+kingdom
+Norway
+a Norwegian
+Poland
+a Pole
+a Russian
+Scotland
+a Scotsman
+Sweden
+a Swede
+a Swiss
+Switzerland
+a Turk
+Turkey
+accident (chance event)
+accident (mishap)
+advantage
+advertisement
+advice
+amusement
+anger
+angle
+apology
+appetite
+army
+art
+assistance
+attack
+bag
+ball
+battle
+beauty
+beginning
+birth
+blow/hit
+burn
+business (trade)
+change (alteration)
+cleanliness
+committee
+competition (capitalism)
+competition (sport etc)
+compromise
+conclusion (end)
+conduct
+confidence (trust)
+conquest
+contact
+contempt
+contents
+courage
+cowardice
+crack (fissure)
+crime
+crisis
+criticism
+cross
+crowd
+cruelty
+custom (habit)
+cut
+dance
+debt
+defeat
+defect
+defense
+degree
+detail
+disaster
+discovery
+disgust
+drop (water etc)
+duration
+edge (border)
+end (extremity)
+enemy
+equality
+error
+event
+exam
+example
+exchange
+fall (price, temperature etc)
+front
+future
+gesture
+gland
+gratitude
+group
+growth
+heap
+honour
+height
+hole
+improvement
+interest (attention)
+interest (return)
+jealousy
+knot
+laughter
+law
+length (space)
+lesson
+look (glance)
+majority
+manager
+meeting (assembly)
+minority
+mixture
+native land
+nature (stuff untainted by the corrupting hand of Man)
+navy
+noise
+order (arrangement)
+order (command)
+origin
+owner
+party (faction)
+piece (fragment)
+point (dot)
+point (sharp end)
+prejudice
+present (gift)
+pressure
+profit
+purchase
+purpose
+ray
+reason
+receipt
+refusal
+remainder
+remedy
+report (account)
+request
+revenge
+sale
+sample
+sound
+suggestion
+summary
+summit (mountain)
+surface
+suspicion
+swindle (fraud)
+tax
+theft
+thirst
+toy
+treaty
+trial (law)
+salary
+walk (stroll)
+want (lack)
+wealth
+world
+youth (early life)
+zeal
+air
+bank (of river)
+bay
+beach
+cape (geography)
+cave
+climate
+cloud
+coast
+countryside
+current (water)
+darkness
+desert
+dew
+dust
+earth
+east
+field
+foam
+forest
+frost
+grass
+hail
+hay
+hill
+horizon
+ice
+island
+lake
+light
+lightning
+meadow
+mist
+moon
+full moon
+mountain
+mouth (river)
+mud (river, etc)
+north
+peninsula
+plain
+pond
+rain
+rainbow
+river (large)
+rock
+sand
+sea
+shadow
+sky
+snow
+south
+spring (water)
+star
+storm
+straits
+stream
+sun
+thunder
+tide
+high tide
+low tide
+town
+view
+village
+vineyard
+waterfall
+wave
+weather
+west
+berry
+date
+poplar
+vine
+seed
+axe
+board
+chisel
+file (nails, etc)
+hammer
+nail
+rifle
+shotgun
+crossbow
+longbow
+spear
+cannon
+net
+nut (associates with bolts)
+pincers
+pliers
+plough
+fishing rod
+saw
+scissors
+screw
+screw-driver
+scythe
+spade
+spanner
+tool
+wire
+baker
+bakery
+bank
+bookshop
+businessman
+butcher (profession)
+butcher (shop)
+chemist (chemistry)
+chemist (pharmacy)
+cook (job)
+engineer
+fisherman
+gardener
+hairdresser
+jeweller
+journalist
+judge
+laundrette
+lawyer
+mechanic
+musician
+nurse (hospital)
+official (job)
+optician
+painter
+peasant
+photographer
+policeman
+pig (policeman)
+postman
+priest (parish)
+publisher
+scientist
+servant
+shoemaker
+shop
+singer
+stationary shop
+surgeon
+tailor
+teacher
+manual labourer
+address
+addressee
+envelope
+ink
+letter
+letterbox
+mail
+map
+news
+newspaper
+novel
+pencil
+postcard
+rubber/eraser
+sender
+signature
+bill (restaurant)
+chambermaid
+change (from a banknote)
+chef (of restaurant)
+cloakroom
+lift
+menu
+staff
+tip (restaurant)
+waiter
+ticket office
+carriage
+connection (train)
+customs
+departure
+dining carriage
+exit
+conductor
+information office
+luggage
+passenger
+passport
+platform
+railway
+seat (train)
+sleeping carriage
+suitcase
+return ticket
+One-way ticket
+train timetable
+train
+anchor
+boat (small)
+bridge (boat)
+cabin (boat)
+captain (boat)
+compass
+crew (boat)
+deck (boat)
+prow/bow (boat)
+hold (boat)
+hull
+keel
+lighthouse
+mast
+oar
+propeller
+rudder
+sail
+sailor
+seasickness
+ship (medium/large)
+stern
+aeroplane
+bend (road)
+axle
+brake
+bumper (of vehicle)
+clutch
+fine (parking etc)
+gears
+headlight
+hood (car)
+horn (car)
+ignition
+Level-crossing
+lorry
+lever
+motorbike
+mudguard
+one-way (traffic)
+petrol
+pump (petrol station)
+puncture
+spark
+spark plug
+spring (coil)
+steering wheel
+handlebar (bike)
+tram
+inner tube (wheel)
+tyre
+valve
+wheel
+clothes hanger
+century
+afternoon
+Christmas
+Easter
+evening
+fortnight
+half an hour
+quarter of an hour
+hour and a half
+leap year
+Middle Ages
+midnight
+minute
+midday
+season
+New Year
+sunrise
+sunset
+spring (season)
+summer
+autumn
+winter
+January
+February
+March
+April
+May
+June
+July
+August
+September
+October
+November
+December
+ankle
+arm
+artery
+back
+beard
+belly
+bladder
+blood
+body
+bone
+brain
+breast
+calf (body)
+cheek
+chest
+chin
+cold
+complexion
+cough
+disease
+ear
+elbow
+eye
+eyebrow
+eyelid
+face
+fever
+finger
+fist
+flesh
+foot
+forehead
+gum
+hand
+health
+heart
+heel
+hip
+jaw
+kidney
+knee
+leg
+lip
+liver
+lung
+moustache
+mouth
+muscle
+nail
+neck
+nerve
+nose
+palm
+pulse
+rib
+shoulder
+skeleton
+skin
+skull
+sole
+spine
+stomach
+tear
+temple
+thigh
+throat (internal)
+thumb
+toe
+tongue
+tooth
+vein
+wound
+wrist
+Adam's apple
+throat
+lungs
+nostril
+spinal cord
+forearm
+bicep
+tricep
+rib cage
+foreskin
+labia
+penis
+cock (genitalia, crude)
+vagina
+pussy (genitalia, crude)
+testicles
+balls (genitalia, crude)
+bottom
+arse (crude)
+small intestine
+large intestine
+chest (body. Not just tits)
+joint (body)
+spleen
+tendon
+gall bladder
+urinary bladder
+pancreas
+breasts
+tits (crude)
+ovaries
+uterus
+hormone
+saliva
+six pack (body)
+pecks (pectoral muscles, male muscle boob)
+aunt
+boy
+brother
+child
+forename
+cousin
+daughter
+divorce
+family
+father
+gentleman
+girl
+grandfather
+grandmother
+husband
+lady
+man
+marriage
+mother
+parents
+relative
+sister
+son
+surname
+twins
+uncle
+wife
+woman
+boyfriend
+girlfriend
+fuck buddy
+coffee pot
+colander
+sieve
+cork screw
+bottle opener
+cork (for bottle)
+spatula
+cutting board
+ladle
+teaspoon
+blender (kitchen)
+whisk
+tin opener
+roller
+tea strainer
+potato peeler
+cheese grater
+soup spoon
+jar
+cup
+dish
