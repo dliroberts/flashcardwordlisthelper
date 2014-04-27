@@ -11,20 +11,23 @@ class Hypothesis
 end
 
 def fetchPronunciation(word, language)
+  #puts word + "/" + language
+  
   pronUrl = "http://en.pons.com/translate?q=" + CGI.escape(word) + "&l=en" + language + "&in=" + language + "&lf=" + language
+  
   pronPageContent = open(pronUrl) {|f| f.read}
   pronPageContent.gsub!(/\r\n?/, "\n")
+  
+  #puts pronPageContent
   
   wordEscaped = CGI.escapeHTML(word)
   
   #puts wordEscaped
   #puts pronPageContent
   #puts pronUrl
-  
-  pronPageContent =~ /.*<h2>\s*#{wordEscaped}\s*(?:<span class=.flexion.>.{,100}<\/span>\s*)?<span class=.phonetics.>\[([^\]]*)\]<\/span> <span class=.wordclass.><acronym title=.noun.>NOUN<\/acronym><\/span>.*/m
+
+  pronPageContent =~ /.*<h2>\s*#{wordEscaped}\s*(?:<span class=.flexion.>.{0,100}<\/span>\s*)?<span class=.phonetics.>\[([^\]]*)\]<\/span> <span class=.wordclass.><acronym title=.noun.>NOUN<\/acronym><\/span>.*/m
   pronContent = $1
-  
-  #puts pronContent
   
   if !pronContent.nil?
     pronContent = pronContent.gsub(/<span class="separator">.<\/span>/, "")
@@ -46,14 +49,22 @@ class Translation
   end
   
   def to_s
-    out = word
+    out = word + "" # make a copy rather than referring to original object... strings mutable!
     if !out.nil?
       out << ' (' + gender + ')'
       
-      puts "xxx " + word if hypotheses.nil? or hypotheses.empty?
-      
       pron = fetchPronunciation(word, hypotheses.first.language)
       out << " /" + pron + "/" if !pron.nil?
+      
+      hypotheses.each do |hypo|
+        category = hypo.category
+        disambiguation = hypo.disambiguation
+        translationNote = hypo.translationNote
+        out << "\r\n"
+        out << "<" + category +        "> " if !category.nil?
+        out << "(" + disambiguation +  ") " if !disambiguation.nil?
+        out << "[" + translationNote + "] " if !translationNote.nil? and !translationNote.empty?
+      end
     end
     return out
   end
@@ -157,19 +168,20 @@ enWords.each_line do |enWord|
               posTmp = groups[:transPos]
               genderTmp = posToGender(posTmp)
               
-              groups[:translations].split(", ").each do |translation|
+              groups[:translations].split(", ").each do |translationWord|
                 if hypothesis.translations.nil?
                   hypothesis.translations = []
                 end
                 trans = Translation.new
                 trans.gender = genderTmp
-                trans.word = translation
+                
+                trans.word = translationWord
                 
                 trans.hypotheses = [] if trans.hypotheses.nil?
                 trans.hypotheses << hypothesis
                 
                 #trans.pronunciation = pronunciation(translation, lang)
-                hypothesis.translations << trans if !translation.include?("title='translation unavailable'")
+                hypothesis.translations << trans if !translationWord.include?("title='translation unavailable'")
               end
               
               evennessTmp = groups[:evenness]
@@ -199,13 +211,13 @@ enWords.each_line do |enWord|
         if hypothesis.translations.nil?
           hypothesis.translations = []
         end
-        contGroups[:translations].split(", ").each do |translation|
-          if translation == "-"
+        contGroups[:translations].split(", ").each do |translationWord|
+          if translationWord == "-"
             next
           end
           trans = Translation.new
           trans.gender = genderTmp
-          trans.word = translation
+          trans.word = translationWord
           
           trans.hypotheses = [] if trans.hypotheses.nil?
           trans.hypotheses << hypothesis
@@ -226,18 +238,28 @@ enWords.each_line do |enWord|
     # Print translations - with disambiguation if necessary
     
     [0,1].each do |priority|
-      # TODO go through in priority order
-      
       # make merged list of all translations
       
       priorityHypotheses = hypotheses.select {|hypothesis| hypothesis.priority == priority}
       
-      translations = Set.new
+      translationMap = {}
       #translations += priorityHypotheses.each {|priorityHypothesis| priorityHypothesis.translations}
       
       priorityHypotheses.each do |hyp|
-        translations += hyp.translations
+        #puts "hypo: "+hyp.
+        
+        hyp.translations.each do |tr|
+          transInMap = translationMap[tr]
+          if transInMap.nil?
+            translationMap[tr] = tr
+          else
+            transInMap.hypotheses << hypothesis
+            puts "Adding new hypo to " + tr.word + ": " + hypothesis.to_s
+          end
+        end
       end
+      
+      translations = translationMap.keys
       
       #puts translations.inspect
       
@@ -256,17 +278,7 @@ enWords.each_line do |enWord|
         breakPending = true
       end # hypo count ifelse
       row << cellContent
-      
-=begin
-      cellContent = ""
-      translations.map.with_index do |candidate, i|
-        cellContent << "|" if i > 0
-        pron = pronunciation(candidate.word, lang)
-        cellContent << pron if !pron.nil?
-      end
-      row << cellContent
-=end
-      
+        
       break if breakPending
     end # hypo priority loop
   end
