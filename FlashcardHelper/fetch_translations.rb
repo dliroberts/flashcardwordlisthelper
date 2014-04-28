@@ -4,6 +4,10 @@ require 'cgi'
 require 'axlsx'
 include REXML
 
+# TODO
+# 1. hide rows where no disambiguation required
+# 2. highlight for cells with disambig required
+
 outFilename = "flashcard_notes.xlsx"
 
 class Hypothesis
@@ -38,7 +42,7 @@ def fetchPronunciation(word, language)
 end
 
 class Translation
-  attr_accessor :word, :gender, :hypotheses, :description
+  attr_accessor :word, :gender, :hypotheses, :description, :pronunciation
   
   def eql?(other)
     (word == other.word) and (gender == other.gender)
@@ -53,20 +57,8 @@ class Translation
     if !out.nil?
       out << ' (' + gender + ')'
       
-      pron = fetchPronunciation(word, hypotheses.first.language)
-      out << " /" + pron + "/" if !pron.nil?
-      
-=begin
-      hypotheses.each do |hypo|
-        category = hypo.category
-        disambiguation = hypo.disambiguation
-        translationNote = hypo.translationNote
-        out << "\r\n"
-        out << "<" + category +        "> " if !category.nil?
-        out << "(" + disambiguation +  ") " if !disambiguation.nil?
-        out << "[" + translationNote + "] " if !translationNote.nil? and !translationNote.empty?
-      end
-=end
+      @pronunciation = fetchPronunciation(word, hypotheses.first.language)
+      out << " /" + @pronunciation + "/" if !@pronunciation.nil?
     end
     return out
   end
@@ -103,7 +95,9 @@ row = []
 
 row << "English Word"
 languages.each_key do |lang|
+  row << lang + " disambiguation"
   row << lang + " word"
+  row << lang + " gender"
   row << lang + " pronunciation"
 end
 sheet.add_row(row)
@@ -261,13 +255,6 @@ enWords.each_line do |enWord|
             transInMap = tr
           else
             transInMap.hypotheses << hypothesis
-=begin
-        puts "===hypooooos"
-            transInMap.hypotheses.each do |hhh|
-              print "+++" + hhh.inspect
-            end
-        puts transInMap.hypotheses.length.to_s + " hypos==="
-=end
           end
           
           desc = ""
@@ -283,13 +270,16 @@ enWords.each_line do |enWord|
       
       translations = translationMap.keys
       
-      #puts translations.inspect
-      
       cellContent = ""
       breakPending = false
       if translations.length == 1
         cellContent << translations.first.to_s #if !translations.first.to_s.nil?
+        cellContent << translations.first.description
         breakPending = true
+        row << cellContent
+        row << translations.first.word
+        row << translations.first.gender
+        row << translations.first.pronunciation
       elsif translations.length > 1
         translations.map.with_index do |candidate, i|
           cellContent << "\r\n---\r\n" if i > 0
@@ -299,17 +289,18 @@ enWords.each_line do |enWord|
           #puts enWord + " untranslated into " + lang if candidate.to_s.nil?
         end
         breakPending = true
+        row << cellContent
+        row << ""
+        row << ""
+        row << ""
       end # hypo count ifelse
-      row << cellContent
-        
       break if breakPending
     end # hypo priority loop
   end
   
   sheet.add_row(row)
   wordIdx = (wordIdx + 1) % writeInterval
-  p.serialize outFilename
-  #if wordIdx == 0
+  p.serialize outFilename #if wordIdx == 0
   
   puts "Row complete: " + enWord
 end
