@@ -38,7 +38,7 @@ def fetchPronunciation(word, language)
 end
 
 class Translation
-  attr_accessor :word, :gender, :hypotheses
+  attr_accessor :word, :gender, :hypotheses, :description
   
   def eql?(other)
     (word == other.word) and (gender == other.gender)
@@ -56,6 +56,7 @@ class Translation
       pron = fetchPronunciation(word, hypotheses.first.language)
       out << " /" + pron + "/" if !pron.nil?
       
+=begin
       hypotheses.each do |hypo|
         category = hypo.category
         disambiguation = hypo.disambiguation
@@ -65,6 +66,7 @@ class Translation
         out << "(" + disambiguation +  ") " if !disambiguation.nil?
         out << "[" + translationNote + "] " if !translationNote.nil? and !translationNote.empty?
       end
+=end
     end
     return out
   end
@@ -192,6 +194,8 @@ enWords.each_line do |enWord|
               hypothesis.translationNote = groups[:translationNote]
               hypothesis.disambiguation = groups[:disambiguation]
               
+              #puts "aii" + hypothesis.inspect
+              
               hypotheses << hypothesis
             end
           end
@@ -227,8 +231,6 @@ enWords.each_line do |enWord|
         
         hypothesis.translationNote = contGroups[:translationNote]
         
-        #puts "trans hypo: " + hypothesis.inspect
-        
         hypotheses << hypothesis if !hypothesis.translations.empty?
       end # continued translation block if
       
@@ -241,21 +243,41 @@ enWords.each_line do |enWord|
       # make merged list of all translations
       
       priorityHypotheses = hypotheses.select {|hypothesis| hypothesis.priority == priority}
-      
+
       translationMap = {}
       #translations += priorityHypotheses.each {|priorityHypothesis| priorityHypothesis.translations}
       
       priorityHypotheses.each do |hyp|
-        #puts "hypo: "+hyp.
+        #print "\nhypo for " + hyp.translations.first.word +  ": " 
+        #print hyp.disambiguation+"/"
+        #print hyp.category+"/" if !hyp.category.nil?
+        #hyp.translationNote
         
         hyp.translations.each do |tr|
           transInMap = translationMap[tr]
           if transInMap.nil?
+            #puts "nil transmap==="
             translationMap[tr] = tr
+            transInMap = tr
           else
             transInMap.hypotheses << hypothesis
-            puts "Adding new hypo to " + tr.word + ": " + hypothesis.to_s
+=begin
+        puts "===hypooooos"
+            transInMap.hypotheses.each do |hhh|
+              print "+++" + hhh.inspect
+            end
+        puts transInMap.hypotheses.length.to_s + " hypos==="
+=end
           end
+          
+          desc = ""
+          desc << "\r\n"
+          desc << "<" + hyp.category +        "> " if !hyp.category.nil?
+          desc << "(" + hyp.disambiguation +  ") " if !hyp.disambiguation.nil?
+          desc << "[" + hyp.translationNote + "] " if !hyp.translationNote.nil? and !hyp.translationNote.empty?
+          
+          transInMap.description = "" if transInMap.description.nil?
+          transInMap.description << desc
         end
       end
       
@@ -272,6 +294,7 @@ enWords.each_line do |enWord|
         translations.map.with_index do |candidate, i|
           cellContent << "\r\n---\r\n" if i > 0
           cellContent << candidate.to_s #if !candidate.to_s.nil?
+          cellContent << candidate.description
           
           #puts enWord + " untranslated into " + lang if candidate.to_s.nil?
         end
