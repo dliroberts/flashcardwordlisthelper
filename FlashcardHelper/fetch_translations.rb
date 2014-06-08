@@ -30,7 +30,7 @@ def fetchPronunciation(word, language)
   #puts pronPageContent
   #puts pronUrl
 
-  pronPageContent =~ /.*<h2>\s*#{wordEscaped}\s*(?:<span class=.flexion.>.{0,100}<\/span>\s*)?<span class=.phonetics.>\[([^\]]*)\]<\/span> <span class=.wordclass.><acronym title=.noun.>NOUN<\/acronym><\/span>.*/m
+  pronPageContent =~ /.*<h2>\s*#{wordEscaped}\s*(?:<span class=.flexion.>.{0,100}<\/span>\s*)?<span class=.phonetics.>\[([^\]]*)\]<\/span>\s*<span class=.wordclass.><acronym title=.noun.>NOUN<\/acronym><\/span>.*/m
   pronContent = $1
   
   if !pronContent.nil?
@@ -119,41 +119,48 @@ enWords.each_line do |enWord|
     
     hypothesis = nil
     transUrl = transSite + path + CGI.escape(enWord)
-    content = open(transUrl) {|f| f.read}
-    content.gsub!(/\r\n?/, "\n")
     
-    content =~ /<!-- center column -->(.*)<!-- right column -->/m
+    #puts transUrl
+    
+    content = open(transUrl) {|f| f.read}
+    content.gsub!(/\r?\n/, "").gsub!(/<tr /, "\n<tr ") #.gsub!(/<td /, "\r\n<td ").gsub!(/'>\r\n<td class='FrWrd'>/, "'><td class='FrWrd'>").gsub!(/<\/em>\r\n<\/td><td>/, "</em></td><td>").gsub!(/<\/td>\r\n<td class='ToWrd'/, "</td><td class='ToWrd'")
+    
+    content =~ /<td id=.centercolumn.>(.*)<td id=.rightcolumn.>/m
     content = $1
     evennessTmp = nil
     
+    #puts content
+    
     priority = nil
     content.each_line do |line|
-      
       # Section headings
       if line =~ /.*<td colspan='3' title='Principal Translations'.*/
         priority = 0
         evennessTmp = nil
-        #puts "=== PRIORITY 0 (principal) ==="
+        puts "=== PRIORITY 0 (principal) ==="
       elsif line =~ /.*<td colspan='3' title='Compound Forms'.*/
         priority = 0
         evennessTmp = nil
-        #puts "=== PRIORITY 0 (compound) ==="
+        puts "=== PRIORITY 0 (compound) ==="
       elsif line =~ /.*<td colspan='3' title='Additional Translations'.*/
         priority = 1
         evennessTmp = nil
-        #puts "=== PRIORITY 1 ==="
+        puts "=== PRIORITY 1 ==="
       end
       
       # Beginning of translation block
-      groups = line.match(/.*<tr class='(?<evenness>even|odd)' id='en#{lang}:\d+'><td class='FrWrd'><strong>(?<enWordsFound>.*)<\/strong> <em class='POS2'>(?<enPos>.*)<\/em><\/td><td>(?: <i class='Fr2'>(?<category>.*)<\/i>)? \((?<disambiguation>.*)\)(?: <i class='To2' >(?<translationNote>.*)<\/i>)?<\/td><td class='ToWrd' >(?<translations>.*) <em class='POS2'>(?<transPos>.*)<\/em><\/td><\/tr>/)
+      groups = line.match(/.*<tr class='(?<evenness>even|odd)' id='en#{lang}:\d+'><td class='FrWrd'><strong>(?<enWordsFound>.*)<\/strong> <em class='(?:tooltip )?POS2'>(?<enPos>[^<]{0,15})(<span>.*<\/span>)?<\/em><\/td><td>(?: <i class='Fr2'>(?<category>.*)<\/i>)? \((?<disambiguation>.*)\)(?: <i class='To2' >(?<translationNote>.*)<\/i>)?<\/td><td class='ToWrd' >(?<translations>.*) <em class='POS2'>(?<transPos>.*)<\/em><\/td><\/tr>.*/)
       contGroups = nil
       if evennessTmp != nil
-        contGroups = line.match(/<tr class='#{evennessTmp}'><td>&nbsp;<\/td><td class='To2'>(?<translationNote>.*)<\/td><td class='ToWrd' >(?<translations>.*) <em class='POS2'>(?<transPos>.*)<\/em><\/td><\/tr>/)
+        contGroups = line.match(/.*<tr class='#{evennessTmp}'><td>&nbsp;<\/td><td class='To2'>(?<translationNote>.*)<\/td><td class='ToWrd' >(?<translations>.*) <em class='POS2'>(?<transPos>.*)<\/em><\/td><\/tr>.*/)
       end
       
-      if groups != nil
+      debugPrefix = groups.nil? ? (contGroups.nil? ? "unmatched" : "group continuation: ") : "Group start: "
+      #puts "[[[" + debugPrefix + line
+      
+      if !groups.nil?
         if groups[:enPos] == "n"
-          #puts "Trans block: " + line
+          puts "                  Trans block: " + line
           
           hypothesis = Hypothesis.new
           
@@ -197,6 +204,8 @@ enWords.each_line do |enWord|
           evennessTmp = nil
         end
       elsif !evennessTmp.nil? and !contGroups.nil?
+        puts "trans block continuation: " + line
+        
         hypothesisOld = hypothesis
         hypothesis = Hypothesis.new
         
