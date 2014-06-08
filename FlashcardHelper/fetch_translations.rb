@@ -19,7 +19,13 @@ def fetchPronunciation(word, language)
   
   pronUrl = "http://en.pons.com/translate?q=" + CGI.escape(word) + "&l=en" + language + "&in=" + language + "&lf=" + language
   
-  pronPageContent = open(pronUrl) {|f| f.read}
+  pronPageContent = ""
+  begin
+    pronPageContent = open(pronUrl) {|f| f.read}
+  rescue Exception => e
+    puts "unable to fetch pronunciation (page fetch failure): " + e.message
+    return ""
+  end
   pronPageContent.gsub!(/\r\n?/, "\n")
   
   #puts pronPageContent
@@ -29,9 +35,15 @@ def fetchPronunciation(word, language)
   #puts wordEscaped
   #puts pronPageContent
   #puts pronUrl
-
-  pronPageContent =~ /.*<h2>\s*#{wordEscaped}\s*(?:<span class=.flexion.>.{0,100}<\/span>\s*)?<span class=.phonetics.>\[([^\]]*)\]<\/span>\s*<span class=.wordclass.><acronym title=.noun.>NOUN<\/acronym><\/span>.*/m
-  pronContent = $1
+  
+  pronContent = nil
+  begin
+    pronPageContent =~ /.*<h2>\s*#{wordEscaped}\s*(?:<span class=.flexion.>.{0,100}<\/span>\s*)?<span class=.phonetics.>\[([^\]]*)\]<\/span>\s*<span class=.wordclass.><acronym title=.noun.>NOUN<\/acronym><\/span>.*/m
+    pronContent = $1
+  rescue Exception => e
+    puts "unable to fetch pronunciation (parse failure): " + e.message
+    return ""
+  end
   
   if !pronContent.nil?
     pronContent = pronContent.gsub(/<span class="separator">.<\/span>/, "")
@@ -112,9 +124,15 @@ enWords.each_line do |enWord|
   row = []
   
   enWord = enWord.strip
+  
+  puts "***Word: " + enWord
+  
   row << enWord
   
   languages.each do |lang, path|
+    
+    puts "^^^Lang: " + lang
+    
     hypotheses = []
     
     hypothesis = nil
@@ -122,7 +140,20 @@ enWords.each_line do |enWord|
     
     #puts transUrl
     
-    content = open(transUrl) {|f| f.read}
+    attemptCount = 0
+    content = ""
+    
+    while content == "" and attemptCount < 3
+      begin
+        content = open(transUrl) {|f| f.read}
+      rescue Exception => e
+        puts "Exception thrown downloading content: " + e.message 
+        attemptCount++
+        sleep(5 + rand(15))
+      end
+    end
+    exit if content == ""
+    
     content.gsub!(/\r?\n/, "").gsub!(/<tr /, "\n<tr ") #.gsub!(/<td /, "\r\n<td ").gsub!(/'>\r\n<td class='FrWrd'>/, "'><td class='FrWrd'>").gsub!(/<\/em>\r\n<\/td><td>/, "</em></td><td>").gsub!(/<\/td>\r\n<td class='ToWrd'/, "</td><td class='ToWrd'")
     
     content =~ /<td id=.centercolumn.>(.*)<td id=.rightcolumn.>/m
@@ -204,7 +235,7 @@ enWords.each_line do |enWord|
           evennessTmp = nil
         end
       elsif !evennessTmp.nil? and !contGroups.nil?
-        puts "trans block continuation: " + line
+        puts "                  Trans block continuation: " + line
         
         hypothesisOld = hypothesis
         hypothesis = Hypothesis.new
