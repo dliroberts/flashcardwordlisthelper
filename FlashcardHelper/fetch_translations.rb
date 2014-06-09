@@ -340,7 +340,7 @@ enWords.each_line do |enWord|
   
   sheet.add_row(row)
   wordIdx = (wordIdx + 1) % writeInterval
-  p.serialize outFilename #if wordIdx == 0
+  p.serialize outFilename if wordIdx == 0
   
   puts "Row complete: " + enWord
 end
